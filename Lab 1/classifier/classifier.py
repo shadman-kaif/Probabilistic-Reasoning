@@ -50,9 +50,9 @@ def classify_new_email(filename,probabilities_by_category,prior_by_category):
 if __name__ == '__main__':
     
     # folder for training and testing 
-    spam_folder = "data/spam"
-    ham_folder = "data/ham"
-    test_folder = "data/testing"
+    spam_folder = "classifier/data/spam"
+    ham_folder = "classifier/data/ham"
+    test_folder = "classifier/data/testing"
 
     # generate the file lists for training
     file_lists = []
