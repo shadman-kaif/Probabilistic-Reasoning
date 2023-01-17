@@ -51,8 +51,8 @@ def misRate(mu_male,mu_female,cov,cov_male,cov_female,x,y):
 if __name__ == '__main__':
     
     # load training data and testing data
-    x_train, y_train = util.get_data_in_file('trainHeightWeight.txt')
-    x_test, y_test = util.get_data_in_file('testHeightWeight.txt')
+    x_train, y_train = util.get_data_in_file('ldaqda/trainHeightWeight.txt')
+    x_test, y_test = util.get_data_in_file('ldaqda/testHeightWeight.txt')
     
     # parameter estimation and visualization in LDA/QDA
     mu_male,mu_female,cov,cov_male,cov_female = discrimAnalysis(x_train,y_train)
