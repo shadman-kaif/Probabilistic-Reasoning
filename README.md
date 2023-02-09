@@ -7,4 +7,3 @@ Lab 1: Naïve Bayes Classifier and Linear/Quadratic Discriminant Analysis
 
 Lab 2: 
 
-
