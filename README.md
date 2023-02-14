@@ -6,3 +6,4 @@ Lab 1: Naïve Bayes Classifier and Linear/Quadratic Discriminant Analysis
 (b) Linear discriminant analysis for height/weight data 
 
 Lab 2: 
+
