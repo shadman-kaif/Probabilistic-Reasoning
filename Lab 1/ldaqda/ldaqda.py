@@ -160,17 +160,17 @@ if __name__ == '__main__':
     plt.contour(H, W, female_lda, colors = 'red')
     plt.contour(H, W, male_lda, colors = 'blue')
 
-    lda_decision = np.asarray(male_lda) - np.asarray(female_lda)
-    plt.contour(H, W, lda_decision, 0, colors = 'black')
+    lda_decision_boundary = np.asarray(male_lda) - np.asarray(female_lda)
+    plt.contour(H, W, lda_decision_boundary, 0, colors = 'black')
     
     h1, l1 = plt.contour(H, W, female_lda, colors = 'red').legend_elements()
     h2, l2 = plt.contour(H, W, male_lda, colors = 'blue').legend_elements()
-    h3, l3 = plt.contour(H, W, lda_decision, 0, colors = 'black').legend_elements()
+    h3, l3 = plt.contour(H, W, lda_decision_boundary, 0, colors = 'black').legend_elements()
 
     plt.title('Weight vs Height for LDA')
     plt.xlabel('Height')
     plt.ylabel('Weight')
-    plt.legend([h1[0], h2[0], h3[0]], ['Female LDA', 'Male LDA', 'Decision Boundary'])
+    plt.legend([h1[0], h2[0], h3[0]], ['Female LDA', 'Male LDA', 'LDA Decision Boundary'])
     plt.savefig("lda.pdf")
     plt.show()
 
@@ -185,17 +185,17 @@ if __name__ == '__main__':
     plt.contour(H, W, female_qda, colors='red')
     plt.contour(H, W, male_qda, colors='blue')
 
-    qda_decision = np.asarray(male_qda) - np.asarray(female_qda)
-    plt.contour(H, W, qda_decision, 0, colors = 'black')
+    qda_decision_boundary = np.asarray(male_qda) - np.asarray(female_qda)
+    plt.contour(H, W, qda_decision_boundary, 0, colors = 'black')
 
     h1, l1 = plt.contour(H, W, female_qda, colors = 'red').legend_elements()
     h2, l2 = plt.contour(H, W, male_qda, colors = 'blue').legend_elements()
-    h3, l3 = plt.contour(H, W, qda_decision, 0, colors = 'black').legend_elements()
+    h3, l3 = plt.contour(H, W, qda_decision_boundary, 0, colors = 'black').legend_elements()
 
     plt.title('Weight vs Height for QDA')
     plt.xlabel('Height')
     plt.ylabel('Weight')
-    plt.legend([h1[0], h2[0], h3[0]], ['Female QDA', 'Male QDA', 'Decision Boundary'])
+    plt.legend([h1[0], h2[0], h3[0]], ['Female QDA', 'Male QDA', 'QDA Decision Boundary'])
     plt.savefig("qda.pdf")
     plt.show()
     
