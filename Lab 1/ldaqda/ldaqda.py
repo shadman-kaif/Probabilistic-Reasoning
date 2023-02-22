@@ -137,17 +137,17 @@ if __name__ == '__main__':
     male_lda, male_qda, female_lda, female_qda = [], [], [], []
 
     for i in weights:
-        male_lda_tmp, male_qda_tmp, female_lda_tmp, female_qda_tmp = [], [], [], []
+        temporary_male_lda, temporary_male_qda, temporary_female_lda, temporary_female_qda = [], [], [], []
         for j in heights:
-            male_qda_tmp.extend(util.density_Gaussian(mu_male, cov_male, np.array([[j, i]])))
-            male_lda_tmp.extend(util.density_Gaussian(mu_male, cov, np.array([[j, i]])))
-            female_qda_tmp.extend(util.density_Gaussian(mu_female, cov_female, np.array([[j, i]])))
-            female_lda_tmp.extend(util.density_Gaussian(mu_female, cov, np.array([[j, i]])))
+            temporary_male_qda.extend(util.density_Gaussian(mu_male, cov_male, np.array([[j, i]])))
+            temporary_male_lda.extend(util.density_Gaussian(mu_male, cov, np.array([[j, i]])))
+            temporary_female_qda.extend(util.density_Gaussian(mu_female, cov_female, np.array([[j, i]])))
+            temporary_female_lda.extend(util.density_Gaussian(mu_female, cov, np.array([[j, i]])))
         
-        male_qda.append(male_qda_tmp[:])
-        male_lda.append(male_lda_tmp[:])
-        female_qda.append(female_qda_tmp[:])
-        female_lda.append(female_lda_tmp[:])
+        male_qda.append(temporary_male_qda[:])
+        male_lda.append(temporary_male_lda[:])
+        female_qda.append(temporary_female_qda[:])
+        female_lda.append(temporary_female_lda[:])
 
     # LDA Plot
     for i in range(x_train.shape[0]):
