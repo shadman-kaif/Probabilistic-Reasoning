@@ -162,10 +162,9 @@ if __name__ == '__main__':
     ### TODO: Write your code here to modify the decision rule such that
     ### Type 1 and Type 2 errors can be traded off, plot the trade-off curve
 
-    type1_error_count = []
-    type2_error_count = []
+    type1_error_count, type2_error_count = [], []
 
-    epsilon_values = [1e-20, 1e-5, 1e-2, 1e-1, 0, 10, 25, 50, 100, 1e3, 1e5, 1e8, 1e10, 1e15, 1e20, 1e25, 1e50, 1e100, 1e400]
+    epsilon_values = [0, 1e-15, 1e-10, 1e-5, 1e-2, 1, 1e2, 1e5, 1e10, 1e15, 1e20, 1e25, 1e30]
     
     for epsilon in epsilon_values:
     
@@ -196,11 +195,11 @@ if __name__ == '__main__':
         type2_error_count.append(totals[1] - correct[1])
     
     # Plot the Type1 and Type2 errors
-    plt.scatter(type1_error_count, type2_error_count)
+    plt.plot(type1_error_count, type2_error_count)
     plt.ylabel("Number of Type 2 Errors")
     plt.xlabel("Number of Type 1 Errors")
-    plt.ylim([-5, 55])
-    plt.xlim([-5, 55])
+    plt.ylim([-2, 53])
+    plt.xlim([-2, 38])
     plt.title("Type 2 Errors vs Type 1 Errors")
     plt.savefig("nbc.pdf")
     plt.show()
