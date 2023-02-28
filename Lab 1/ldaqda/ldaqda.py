@@ -83,7 +83,7 @@ def misRate(mu_male,mu_female,cov,cov_male,cov_female,x,y):
     lda_male_pred = lda_male > lda_female
     
     for i in range(lda_male_pred.shape[0]):
-        if (lda_male_pred[i] and y[i]==1) or (not lda_male_pred[i] and y[i]==2):
+        if (not lda_male_pred[i] and y[i] == 2) or (lda_male_pred[i] and y[i] == 1):
             lda_right_pred = lda_right_pred + 1
         else:
             lda_incorrect_pred = lda_incorrect_pred + 1
