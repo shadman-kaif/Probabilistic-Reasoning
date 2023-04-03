@@ -39,27 +39,27 @@ def forward_backward(all_possible_hidden_states,
     # TODO: Compute the forward messages
     forward_messages[0] = rover.Distribution()
     for x in all_possible_hidden_states:
-        if observations[0] is None:
-            factor = 1
-        else:
+        if observations[0] is not None:
             factor = observation_model(x)[observations[0]]
+        else:
+            factor = 1
         if prior_distribution[x] * factor != 0:
             forward_messages[0][x] = prior_distribution[x] * factor
     forward_messages[0].renormalize()
 
     for i in range(1, len(forward_messages)):
-        dist = rover.Distribution({})
+        distribution = rover.Distribution({})
         for x in all_possible_hidden_states:
-            if observations[i] is None:
-                factor = 1
-            else:
+            if observations[i] is not None:
                 factor = observation_model(x)[observations[i]]
+            else:
+                factor = 1
             current = 0
             for key in forward_messages[i-1]:
-                current += forward_messages[i-1][key]*transition_model(key)[x]
-            if factor * current != 0:
-                dist[x] = factor * current
-        forward_messages[i] = dist
+                current += transition_model(key)[x] * forward_messages[i-1][key]
+            if current * factor != 0:
+                distribution[x] = current * factor
+        forward_messages[i] = distribution
         forward_messages[i].renormalize()
                    
     # TODO: Compute the backward messages
@@ -72,12 +72,12 @@ def forward_backward(all_possible_hidden_states,
         dist = rover.Distribution({})
         for x in all_possible_hidden_states:
             current = 0
-            for key in backward_messages[i+1]:
-                if observations[i+1] is None:
-                    factor = 1
+            for key in backward_messages[i + 1]:
+                if observations[i + 1] is not None:
+                    factor = observation_model(key)[observations[i + 1]]
                 else:
-                    factor = observation_model(key)[observations[i+1]]
-                current += backward_messages[i+1][key] * factor * transition_model(x)[key]
+                    factor = 1
+                current += transition_model(x)[key] * backward_messages[i + 1][key] * factor
             if current != 0:
                 dist[x] = current
         backward_messages[i] = dist
@@ -87,8 +87,8 @@ def forward_backward(all_possible_hidden_states,
     for i in range(num_time_steps):
         marginals[i] = rover.Distribution()
         for x in all_possible_hidden_states:
-            if forward_messages[i][x] * backward_messages[i][x] != 0:
-                marginals[i][x] = forward_messages[i][x] * backward_messages[i][x]
+            if backward_messages[i][x] * forward_messages[i][x] != 0:
+                marginals[i][x] = backward_messages[i][x] * forward_messages[i][x]
         marginals[i].renormalize()
 
     return marginals
@@ -111,59 +111,54 @@ def Viterbi(all_possible_hidden_states,
     """
 
     # TODO: Write your code here
-
     num_time_steps = len(observations)
-    w = [None] * num_time_steps
-    tracker = [None] * num_time_steps
-    estimated_hidden_states = [None] * num_time_steps
+    w, temp, estimated_hidden_states = [None] * num_time_steps, [None] * num_time_steps, [None] * num_time_steps
 
-    # Initialization
     w[0] = rover.Distribution({})
-    for state in all_possible_hidden_states:
-        if observations[0] is None:
-            initial_obsmodel_val = 1
+    for x in all_possible_hidden_states:
+        if observations[0] is not None:
+            initial_obsmodel_val = observation_model(x)[observations[0]]
         else:
-            initial_obsmodel_val = observation_model(state)[observations[0]]
-        if prior_distribution[state] != 0 and initial_obsmodel_val != 0:
-            w[0][state] = np.log(prior_distribution[state]) + np.log(initial_obsmodel_val)
+            initial_obsmodel_val = 1
+
+        if initial_obsmodel_val != 0 and prior_distribution[x] != 0:
+            w[0][x] = np.log(prior_distribution[x]) + np.log(initial_obsmodel_val)
 
 
     for i in range(1, num_time_steps):
+        temp[i] = dict()
         w[i] = rover.Distribution()
-        tracker[i] = dict()
-        for state in all_possible_hidden_states:
-            if observations[i] is None:
-                term = 1
+        for x in all_possible_hidden_states:
+            if observations[i] is not None:
+                term = observation_model(x)[observations[i]]
             else:
-                term = observation_model(state)[observations[i]]
-            best_prev = None
-            best_sum = np.NINF
-            for prev_state in w[i-1]:
-                if transition_model(prev_state)[state]!=0 and np.log(transition_model(prev_state)[state]) + w[i-1][prev_state] > best_sum:
-                    best_sum = np.log(transition_model(prev_state)[state]) + w[i-1][prev_state]
-                    best_prev = prev_state
-            tracker[i][state] = best_prev
-            if term!=0:
-                w[i][state] = best_sum + np.log(term)
+                term = 1
+            added_result_best = np.NINF
+            previous_best_result = None
+            for previous_x in w[i - 1]:
+                if transition_model(previous_x)[x] != 0 and np.log(transition_model(previous_x)[x]) + w[i-1][previous_x] > added_result_best:
+                    added_result_best = w[i-1][previous_x] + np.log(transition_model(previous_x)[x])
+                    previous_best_result = previous_x
+            temp[i][x] = previous_best_result
+            if term != 0:
+                w[i][x] = np.log(term) + added_result_best
 
-    # Find best
-    curr = np.NINF
-    for state in w[-1]:
-        if w[-1][state] > curr:
-            curr = w[-1][state]
-            estimated_hidden_states[num_time_steps-1] = state 
+    current = np.NINF
+    for x in w[-1]:
+        if w[-1][x] > current:
+            current = w[-1][x]
+            estimated_hidden_states[num_time_steps - 1] = x 
 
-    for i in range(num_time_steps-2, -1, -1):
-        estimated_hidden_states[i] = tracker[i+1][estimated_hidden_states[i+1]]
+    for i in range(num_time_steps - 2, -1, -1):
+        estimated_hidden_states[i] = temp[i + 1][estimated_hidden_states[i + 1]]
     
     return estimated_hidden_states
-
 
 if __name__ == '__main__':
    
     enable_graphics = True
-    
     missing_observations = True
+    
     if missing_observations:
         filename = 'test_missing.txt'
     else:
@@ -185,9 +180,8 @@ if __name__ == '__main__':
                                  rover.observation_model,
                                  observations)
     print('\n')
-
-
    
+    #timestep = 99
     timestep = 30
     print("Most likely parts of marginal at time %d:" % (timestep))
     print(sorted(marginals[timestep].items(), key=lambda x: x[1], reverse=True)[:10])
@@ -207,18 +201,17 @@ if __name__ == '__main__':
         print(estimated_states[time_step])
 
     # Marginal Errors
-    marginals_count = 0
-    viterbi_count = 0
+    total_marginals, total_viterbi = 0, 0
     for i in range(num_time_steps):
         if estimated_states[i] == hidden_states[i]:
-            viterbi_count += 1
+            total_viterbi += 1
         if marginals[i].get_mode() == hidden_states[i]:
-            marginals_count += 1
-    viterbi_error = 1 - viterbi_count/num_time_steps
-    marginal_error = 1 - marginals_count/num_time_steps
+            total_marginals += 1
+    viterbi_error = 1 - total_viterbi/num_time_steps
+    marginal_error = 1 - total_marginals/num_time_steps
 
-    print(f'Forward-Backward error: {marginal_error}')
-    print(f'Viterbi error: {viterbi_error}')
+    print("The Viterbi error is: ", viterbi_error)
+    print("The forward-backward error is: ", marginal_error)
     
     '''for i in range(num_time_steps):
         print(marginals[i].get_mode())'''
