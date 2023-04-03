@@ -55,8 +55,8 @@ def forward_backward(all_possible_hidden_states,
             else:
                 factor = 1
             current = 0
-            for key in forward_messages[i-1]:
-                current += transition_model(key)[x] * forward_messages[i-1][key]
+            for j in forward_messages[i-1]:
+                current += transition_model(j)[x] * forward_messages[i-1][j]
             if current * factor != 0:
                 distribution[x] = current * factor
         forward_messages[i] = distribution
@@ -72,12 +72,12 @@ def forward_backward(all_possible_hidden_states,
         dist = rover.Distribution({})
         for x in all_possible_hidden_states:
             current = 0
-            for key in backward_messages[i + 1]:
+            for j in backward_messages[i + 1]:
                 if observations[i + 1] is not None:
-                    factor = observation_model(key)[observations[i + 1]]
+                    factor = observation_model(j)[observations[i + 1]]
                 else:
                     factor = 1
-                current += transition_model(x)[key] * backward_messages[i + 1][key] * factor
+                current += transition_model(x)[j] * backward_messages[i + 1][j] * factor
             if current != 0:
                 dist[x] = current
         backward_messages[i] = dist
